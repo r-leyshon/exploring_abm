@@ -70,8 +70,6 @@ run_encounters <- function(agent_df, npop){
 # agents <- run_encounters(agents, npop = pop)
 
 # moving agents through time -----------------------------------------------
-# matrix to collect table output
-# output_df <- data.frame("E" = 0, "S" = 0)
 
 run_time <- function(agent_table, out_df, npop, days){
   message(sprintf("moving %s people through %s days", npop, days))
