@@ -1,5 +1,4 @@
-"Video series at https://www.youtube.com/watch?v=l-fldSZMXNc
-starting part 5:
+"starting part 5:
 https://www.youtube.com/watch?v=uAeSykgXnhg"
 # agent_no is a label
 # state = S (susceptible) or E (exposed)
