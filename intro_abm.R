@@ -73,14 +73,12 @@ run_encounters <- function(agent_df, npop){
 
 run_time <- function(agent_table, out_df, npop, days){
   message(sprintf("moving %s people through %s days", npop, days))
-  agents_in_time = agent_table
   for (k in 1:days) {
-    agents_in_time <- run_encounters(agent_df = agents_in_time, npop = npop)
+    agent_table <- run_encounters(agent_df = agent_table, npop = npop)
     # format should be df as input
-    tab_out <- table(agents_in_time$state)
+    tab_out <- table(agent_table$state)
     # if first iter, overwrite row
     out_df[k, ] <- tab_out
-      
   }
   return(out_df)
 }
