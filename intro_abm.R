@@ -18,7 +18,8 @@ create_agents <- function(npop, agents = data.frame()){
     agenti <- data.frame(
       agent_no = i,
       state = if(i == 1){"E"} else {"S"},
-      mixing = runif(1, 0, 1))
+      mixing = runif(1, 0, 1)
+      )
     agents <- rbind(agents, agenti)
   }
   print(sprintf("Population: %s", nrow(agents)))
@@ -39,7 +40,7 @@ output_matrix <- matrix(0, 2, no_days)
 run_encounters <- function(agent_df, npop){
   for(i in 1:npop){
     # determine agents propensity to mix
-    mix_likelihood <- agents$mixing[i]
+    mix_likelihood <- agent_df$mixing[i]
     # find the number of agents encountered
     # small No.s get rounded to 0 and throw downstream error, therefore
     # always encounter 1
@@ -49,42 +50,50 @@ run_encounters <- function(agent_df, npop){
       1:npop,
       size = num_encountered,
       replace = TRUE,
-      prob = agents$mixing
+      prob = agent_df$mixing
       )
     # alter conditions on encounters
     for(j in 1:length(agents_encountered)){
-      encounter <- agents[agents_encountered[j], ]
+      encounter <- agent_df[agents_encountered[j], ]
       if(encounter$state == "E"){
         # model an infection risk of 0.5
         infection_risk <- runif(1, 0, 1)
         if(as.logical(round(infection_risk, 0))) {
           # only infect if above 0.5
-          agents$state[i] <- "E"
+          agent_df$state[i] <- "E"
         }
       }
     }
   }
-  return(agents)
+  return(agent_df)
 }
 # agents <- run_encounters(agents, npop = pop)
 
 # moving agents through time -----------------------------------------------
 # matrix to collect table output
-output_matrix <- matrix(0, 2, nrow = no_days)
 # output_df <- data.frame("E" = 0, "S" = 0)
 
-run_time <- function(agent_table, out_format, npop, days){
+run_time <- function(agent_table, out_df, npop, days){
   message(sprintf("moving %s people through %s days", npop, days))
+  agents_in_time = agent_table
   for (k in 1:days) {
-    # will update agents df in global env
-    agents <<- run_encounters(agent_df = agent_table, npop = npop)
-    # format can be matrix or df
-    out_format[k, ] <- table(agents$state)
+    agents_in_time <- run_encounters(agent_df = agents_in_time, npop = npop)
+    # format should be df as input
+    tab_out <- table(agents_in_time$state)
+    # if first iter, overwrite row
+    if(k == 1){
+      out_df[k, ] <- tab_out
+      
+    } else{
+      # else add rows
+      out_df <- rbind(out_df, tab_out)
+    }
   }
-  return(out_format)
+  return(out_df)
 }
 
-output_matrix = run_time(
-  agents, out_format = output_matrix, npop = pop, days = no_days
+output_df = run_time(
+  agents,
+  out_df = data.frame("E" = 0, "S" = 0),
+  npop = pop, days = no_days
   )
-# bar = run_time(agents, out_format = output_df, npop = pop, days = no_days)
