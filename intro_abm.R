@@ -81,13 +81,8 @@ run_time <- function(agent_table, out_df, npop, days){
     # format should be df as input
     tab_out <- table(agents_in_time$state)
     # if first iter, overwrite row
-    if(k == 1){
-      out_df[k, ] <- tab_out
+    out_df[k, ] <- tab_out
       
-    } else{
-      # else add rows
-      out_df <- rbind(out_df, tab_out)
-    }
   }
   return(out_df)
 }
