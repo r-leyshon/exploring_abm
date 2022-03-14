@@ -1,4 +1,4 @@
-"starting part 5:
+"Finished part 5:
 https://www.youtube.com/watch?v=uAeSykgXnhg"
 # agent_no is a label
 # state = S (susceptible) or E (exposed)
@@ -7,25 +7,28 @@ https://www.youtube.com/watch?v=uAeSykgXnhg"
 
 # deps --------------------------------------------------------------------
 
-pop = 10
+pop <- 10
 no_days <- 10
 
 # -------------------------------------------------------------------------
 # define a population of agents
 
-create_agents <- function(npop, agents = data.frame()){
+create_agents <- function(npop, agents = data.frame()) {
   for (i in 1:npop) {
     agenti <- data.frame(
       agent_no = i,
-      state = if(i == 1){"E"} else {"S"},
+      state = if (i == 1) {
+        "E"
+      } else {
+        "S"
+      },
       mixing = runif(1, 0, 1)
-      )
+    )
     agents <- rbind(agents, agenti)
   }
   print(sprintf("Population: %s", nrow(agents)))
   print(table(agents$state))
   return(agents)
-  
 }
 
 agents <- create_agents(pop)
@@ -37,8 +40,8 @@ output_matrix <- matrix(0, 2, no_days)
 
 # -------------------------------------------------------------------------
 # run the encounters
-run_encounters <- function(agent_df, npop){
-  for(i in 1:npop){
+run_encounters <- function(agent_df, npop) {
+  for (i in 1:npop) {
     # determine agents propensity to mix
     mix_likelihood <- agent_df$mixing[i]
     # find the number of agents encountered
@@ -51,14 +54,14 @@ run_encounters <- function(agent_df, npop){
       size = num_encountered,
       replace = TRUE,
       prob = agent_df$mixing
-      )
+    )
     # alter conditions on encounters
-    for(j in 1:length(agents_encountered)){
+    for (j in seq_along(agents_encountered)) {
       encounter <- agent_df[agents_encountered[j], ]
-      if(encounter$state == "E"){
+      if (encounter$state == "E") {
         # model an infection risk of 0.5
         infection_risk <- runif(1, 0, 1)
-        if(as.logical(round(infection_risk, 0))) {
+        if (as.logical(round(infection_risk, 0))) {
           # only infect if above 0.5
           agent_df$state[i] <- "E"
         }
@@ -67,11 +70,10 @@ run_encounters <- function(agent_df, npop){
   }
   return(agent_df)
 }
-# agents <- run_encounters(agents, npop = pop)
 
 # moving agents through time -----------------------------------------------
 
-run_time <- function(agent_table, out_df, npop, days){
+run_time <- function(agent_table, out_df, npop, days) {
   message(sprintf("moving %s people through %s days", npop, days))
   for (k in 1:days) {
     agent_table <- run_encounters(agent_df = agent_table, npop = npop)
@@ -83,8 +85,8 @@ run_time <- function(agent_table, out_df, npop, days){
   return(out_df)
 }
 
-output_df = run_time(
+output_df <- run_time(
   agents,
   out_df = data.frame("E" = 0, "S" = 0),
   npop = pop, days = no_days
-  )
+)
