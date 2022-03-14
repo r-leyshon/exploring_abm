@@ -22,7 +22,12 @@ create_agents <- function(npop, agents = data.frame()) {
       } else {
         "S"
       },
-      mixing = runif(1, 0, 1)
+      mixing = runif(1, 0, 1),
+      exposure_duration = if (i == 1) {
+        1
+      } else {
+        0
+      }
     )
     agents <- rbind(agents, agenti)
   }
@@ -78,15 +83,24 @@ run_time <- function(agent_table, out_df, npop, days) {
   for (k in 1:days) {
     agent_table <- run_encounters(agent_df = agent_table, npop = npop)
     # format should be df as input
-    tab_out <- table(agent_table$state)
-    # if first iter, overwrite row
-    out_df[k, ] <- tab_out
+    # update output df
+    out_df$E[k] <- length(agent_table$state[agent_table$state == "E"])
+    out_df$S[k] <- length(agent_table$state[agent_table$state == "S"])
+    out_df$I[k] <- length(agent_table$state[agent_table$state == "I"])
+    out_df$R[k] <- length(agent_table$state[agent_table$state == "R"])
+    out_df$D[k] <- length(agent_table$state[agent_table$state == "D"])
   }
   return(out_df)
 }
 
 output_df <- run_time(
   agents,
-  out_df = data.frame("E" = 0, "S" = 0),
+  out_df = data.frame(
+    "E" = rep(0, no_days),
+    "S" = rep(0, no_days),
+    "I" = rep(0, no_days),
+    "R" = rep(0, no_days),
+    "D" = rep(0, no_days)
+  ),
   npop = pop, days = no_days
 )
