@@ -1,5 +1,5 @@
-"Finished part 5:
-https://www.youtube.com/watch?v=uAeSykgXnhg"
+"Finished part 7, part 8 below:
+https://www.youtube.com/watch?v=1miJp56LW7g"
 # agent_no is a label
 # state = S (susceptible) or E (exposed)
 # mixing describes interaction with other agents
@@ -7,8 +7,8 @@ https://www.youtube.com/watch?v=uAeSykgXnhg"
 
 # deps --------------------------------------------------------------------
 
-pop <- 10
-no_days <- 10
+pop <- 100
+no_days <- 100
 
 # -------------------------------------------------------------------------
 # define a population of agents
@@ -23,11 +23,12 @@ create_agents <- function(npop, agents = data.frame()) {
         "S"
       },
       mixing = runif(1, 0, 1),
-      exposure_duration = if (i == 1) {
+      days_exposed = if (i == 1) {
         1
       } else {
         0
-      }
+      },
+      stringsAsFactors = FALSE
     )
     agents <- rbind(agents, agenti)
   }
@@ -72,6 +73,12 @@ run_encounters <- function(agent_df, npop) {
         }
       }
     }
+    # grab the exposed agents and increment their exposure duration
+    exposed <- (1:npop)[agent_df$state == "E"]
+    agent_df$days_exposed[exposed] <- agent_df$days_exposed[exposed] + 1
+    # Recover on the 8th day
+    recovering <- (1:npop)[agent_df$days_exposed > 7]
+    agent_df$state[recovering] <- "R"
   }
   return(agent_df)
 }
