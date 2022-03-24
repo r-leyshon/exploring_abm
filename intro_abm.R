@@ -1,5 +1,5 @@
-"Finished part 7, part 8 below:
-https://www.youtube.com/watch?v=1miJp56LW7g"
+"Finished part 8, part 9 below:
+https://www.youtube.com/watch?v=P0NtegRe0Xs"
 # agent_no is a label
 # state = S (susceptible) or E (exposed)
 # mixing describes interaction with other agents
@@ -43,6 +43,27 @@ agents <- create_agents(pop)
 # will collect the table summaries
 output_matrix <- matrix(0, 2, no_days)
 
+# helper funcs ------------------------------------------------------------
+# avoiding complexity hooks
+# this will be used on every individual in the population (defined as i in
+# `run_encounters()`)
+expose_agents <- function(agent_df, encounters, individual) {
+  # alter conditions on encounters
+  for (j in seq_along(encounters)) {
+    encounter <- agent_df[encounters[j], ]
+    if (encounter$state == "E") {
+      # model an infection risk of 0.5
+      infection_risk <- runif(1, 0, 1)
+      if (as.logical(round(infection_risk, 0))) {
+        # only infect if above 0.5
+        agent_df$state[individual] <- "E"
+      }
+    }
+  }
+  return(agent_df$state[individual])
+}
+
+
 
 # -------------------------------------------------------------------------
 # run the encounters
@@ -61,25 +82,28 @@ run_encounters <- function(agent_df, npop) {
       replace = TRUE,
       prob = agent_df$mixing
     )
-    # alter conditions on encounters
-    for (j in seq_along(agents_encountered)) {
-      encounter <- agent_df[agents_encountered[j], ]
-      if (encounter$state == "E") {
-        # model an infection risk of 0.5
-        infection_risk <- runif(1, 0, 1)
-        if (as.logical(round(infection_risk, 0))) {
-          # only infect if above 0.5
-          agent_df$state[i] <- "E"
-        }
-      }
-    }
-    # grab the exposed agents and increment their exposure duration
-    exposed <- (1:npop)[agent_df$state == "E"]
-    agent_df$days_exposed[exposed] <- agent_df$days_exposed[exposed] + 1
-    # Recover on the 8th day
-    recovering <- (1:npop)[agent_df$days_exposed > 7]
-    agent_df$state[recovering] <- "R"
+    # # alter conditions on encounters
+    agent_df$state[i] <- expose_agents(
+      agent_df, agents_encountered,
+      individual = i
+    )
   }
+  # grab the exposed agents and increment their exposure duration
+  exposed <- (1:npop)[agent_df$state == "E"]
+  agent_df$days_exposed[exposed] <- agent_df$days_exposed[exposed] + 1
+  # Recover on the 8th day
+  recovering <- (1:npop)[agent_df$days_exposed > 7]
+  agent_df$state[recovering] <- "R"
+  # change exposed people to infected
+  infecting <- (1:npop)[agent_df$state == "E" & agent_df$state > 3]
+  # give a random chance of becoming infected
+  for (i in infecting) {
+    infection_risk <- as.logical(round(runif(1, 0, 1), 0))
+    if (infection_risk) {
+      agent_df$state[i] <- "I"
+    }
+  }
+
   return(agent_df)
 }
 
