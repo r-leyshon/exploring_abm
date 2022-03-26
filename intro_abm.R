@@ -1,43 +1,48 @@
-"Finished part 8, part 9 below:
-https://www.youtube.com/watch?v=P0NtegRe0Xs"
+"Finished part 9, part 10 below:
+https://www.youtube.com/watch?v=0ZjT5MEARkk"
 # agent_no is a label
 # state = S (susceptible) or E (exposed)
+# I = infected, R = recovered, D = dead
 # mixing describes interaction with other agents
 
 
 # deps --------------------------------------------------------------------
 
-pop <- 100
+pop <- 10
 no_days <- 100
 
 # -------------------------------------------------------------------------
 # define a population of agents
+"
+npop = number of agents
+num_e = number of agents exposed
+num_i = number of agents infected
+"
+create_agents <- function(npop, num_e, num_i, agents = data.frame()) {
+  agents <- data.frame(
+    agent_no = 1:npop,
+    state = "S",
+    mixing = runif(npop, 0, 1),
+    days_exposed = 0,
+    days_infected = 0,
+    stringsAsFactors = FALSE
+  )
+  # ensure num_e are exposed
+  agents$state[1:num_e] <- "E"
+  # how long were they exposed (after 14 days they recover)
+  agents$days_exposed[agents$state == "E"] <- rbinom(num_e, 13, 0.5) + 1
+  # ensure num_i are infected
+  infected_index <- num_e + 1:num_i
+  agents$state[infected_index] <- "I"
+  # how long were they infected?
+  agents$days_infected[infected_index] <- rbinom(num_i, 12, 0.5) + 1
 
-create_agents <- function(npop, agents = data.frame()) {
-  for (i in 1:npop) {
-    agenti <- data.frame(
-      agent_no = i,
-      state = if (i == 1) {
-        "E"
-      } else {
-        "S"
-      },
-      mixing = runif(1, 0, 1),
-      days_exposed = if (i == 1) {
-        1
-      } else {
-        0
-      },
-      stringsAsFactors = FALSE
-    )
-    agents <- rbind(agents, agenti)
-  }
   print(sprintf("Population: %s", nrow(agents)))
   print(table(agents$state))
   return(agents)
 }
 
-agents <- create_agents(pop)
+agents <- create_agents(15, num_e = 5, num_i = 5)
 
 # collecting output -------------------------------------------------------
 # will collect the table summaries
@@ -92,7 +97,7 @@ run_encounters <- function(agent_df, npop) {
   exposed <- (1:npop)[agent_df$state == "E"]
   agent_df$days_exposed[exposed] <- agent_df$days_exposed[exposed] + 1
   # Recover on the 8th day
-  recovering <- (1:npop)[agent_df$days_exposed > 7]
+  recovering <- (1:npop)[agent_df$days_exposed > 14]
   agent_df$state[recovering] <- "R"
   # change exposed people to infected
   infecting <- (1:npop)[agent_df$state == "E" & agent_df$state > 3]
