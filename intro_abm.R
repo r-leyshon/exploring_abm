@@ -44,9 +44,6 @@ create_agents <- function(npop, num_e, num_i, agents = data.frame()) {
 
 agents <- create_agents(pop, num_e = 5, num_i = 5)
 
-# collecting output -------------------------------------------------------
-# will collect the table summaries
-output_matrix <- matrix(0, 2, no_days)
 
 # helper funcs ------------------------------------------------------------
 # avoiding complexity hooks
