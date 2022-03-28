@@ -114,6 +114,16 @@ run_encounters <- function(agent_df, param_df) {
       agent_df$state[i] <- "I"
     }
   }
+  # increment the time infected
+  inf_incrementing <- (1:param_df$pop)[agent_df$state == "I"]
+  agent_df$days_infected[inf_incrementing] <- agent_df$days_infected[
+    inf_incrementing
+  ] + 1
+  # Infected surviving to day 15 will recover
+  inf_recovering <- (1:param_df$pop)[
+    agent_df$state == "I" & agent_df$days_infected > 14
+  ]
+  agent_df$state[inf_recovering] <- "R"
 
   return(agent_df)
 }
