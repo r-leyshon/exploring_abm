@@ -7,9 +7,14 @@ https://www.youtube.com/watch?v=0ZjT5MEARkk"
 
 
 # deps --------------------------------------------------------------------
-
-pop <- 10
-no_days <- 100
+model_params <- data.frame(
+  pop = 10,
+  no_days = 100,
+  maxmix = 10,
+  s2e = 0.25,
+  e2i = 0.1,
+  i2d = 0.05
+)
 
 # -------------------------------------------------------------------------
 # define a population of agents
@@ -42,7 +47,7 @@ create_agents <- function(npop, num_e, num_i, agents = data.frame()) {
   return(agents)
 }
 
-agents <- create_agents(pop, num_e = 5, num_i = 5)
+agents <- create_agents(model_params$pop, num_e = 5, num_i = 5)
 
 
 # helper funcs ------------------------------------------------------------
@@ -130,11 +135,11 @@ run_time <- function(agent_table, out_df, npop, days) {
 output_df <- run_time(
   agents,
   out_df = data.frame(
-    "E" = rep(0, no_days),
-    "S" = rep(0, no_days),
-    "I" = rep(0, no_days),
-    "R" = rep(0, no_days),
-    "D" = rep(0, no_days)
+    "E" = rep(0, model_params$no_days),
+    "S" = rep(0, model_params$no_days),
+    "I" = rep(0, model_params$no_days),
+    "R" = rep(0, model_params$no_days),
+    "D" = rep(0, model_params$no_days)
   ),
-  npop = pop, days = no_days
+  npop = model_params$pop, days = model_params$no_days
 )
