@@ -74,7 +74,7 @@ expose_agents <- function(agent_df, encounters, individual) {
 
 # -------------------------------------------------------------------------
 # run the encounters
-run_encounters <- function(agent_df) {
+run_encounters <- function(agent_df, param_df) {
   npop <- nrow(agent_df)
   for (i in 1:npop) {
     # determine agents propensity to mix
@@ -82,7 +82,10 @@ run_encounters <- function(agent_df) {
     # find the number of agents encountered
     # small No.s get rounded to 0 and throw downstream error, therefore
     # always encounter 1
-    num_encountered <- round((mix_likelihood * 3) + 1, digits = 0)
+    num_encountered <- round(
+      (mix_likelihood * param_df$maxmix) + 1,
+      digits = 0
+    )
     # retrieve the agents encountered
     agents_encountered <- sample(
       1:npop,
@@ -120,7 +123,9 @@ run_encounters <- function(agent_df) {
 run_time <- function(agent_table, out_df, npop, days) {
   message(sprintf("moving %s people through %s days", npop, days))
   for (k in 1:days) {
-    agent_table <- run_encounters(agent_df = agent_table)
+    agent_table <- run_encounters(
+      agent_df = agent_table, param_df = model_params
+    )
     # format should be df as input
     # update output df
     out_df$E[k] <- length(agent_table$state[agent_table$state == "E"])
