@@ -124,6 +124,15 @@ run_encounters <- function(agent_df, param_df) {
     agent_df$state == "I" & agent_df$days_infected > 14
   ]
   agent_df$state[inf_recovering] <- "R"
+  # if not recovered, model chance of death
+  still_infected <- (1:param_df$pop)[
+    agent_df$state == "I" & agent_df$days_infected < 15
+  ]
+  agent_df$state[still_infected] <- ifelse(
+    runif(length(still_infected), 0, 1) > param_df$i2d,
+    "I",
+    "D"
+  )
 
   return(agent_df)
 }
