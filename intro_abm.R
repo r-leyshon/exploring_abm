@@ -54,14 +54,14 @@ agents <- create_agents(model_params$pop, num_e = 5, num_i = 5)
 # avoiding complexity hooks
 # this will be used on every individual in the population (defined as i in
 # `run_encounters()`)
-expose_agents <- function(agent_df, encounters, individual) {
+expose_agents <- function(agent_df, encounters, individual, param_df) {
   # alter conditions on encounters
   for (j in seq_along(encounters)) {
     encounter <- agent_df[encounters[j], ]
     if (encounter$state == "E") {
-      # model an infection risk of 0.5
+      # model an infection risk based on s2e param
       infection_risk <- runif(1, 0, 1)
-      if (as.logical(round(infection_risk, 0))) {
+      if (infection_risk > param_df$s2e) {
         # only infect if above 0.5
         agent_df$state[individual] <- "E"
       }
@@ -96,21 +96,21 @@ run_encounters <- function(agent_df, param_df) {
     # alter conditions on encounters
     agent_df$state[i] <- expose_agents(
       agent_df, agents_encountered,
-      individual = i
+      individual = i, param_df = model_params
     )
   }
   # grab the exposed agents and increment their exposure duration
   exposed <- (1:npop)[agent_df$state == "E"]
   agent_df$days_exposed[exposed] <- agent_df$days_exposed[exposed] + 1
-  # Recover on the 8th day
+  # Recover on the 15th day
   recovering <- (1:npop)[agent_df$days_exposed > 14]
   agent_df$state[recovering] <- "R"
   # change exposed people to infected
   infecting <- (1:npop)[agent_df$state == "E" & agent_df$days_exposed > 3]
   # give a random chance of becoming infected
   for (i in infecting) {
-    infection_risk <- as.logical(round(runif(1, 0, 1), 0))
-    if (infection_risk) {
+    infection_risk <- runif(1, 0, 1)
+    if (infection_risk > param_df$e2i) {
       agent_df$state[i] <- "I"
     }
   }
@@ -120,11 +120,14 @@ run_encounters <- function(agent_df, param_df) {
 
 # moving agents through time -----------------------------------------------
 
-run_time <- function(agent_table, out_df, npop, days) {
-  message(sprintf("moving %s people through %s days", npop, days))
-  for (k in 1:days) {
+run_time <- function(agent_table, out_df, param_df) {
+  message(sprintf(
+    "moving %s people through %s days",
+    param_df$pop, param_df$no_days
+  ))
+  for (k in 1:param_df$no_days) {
     agent_table <- run_encounters(
-      agent_df = agent_table, param_df = model_params
+      agent_df = agent_table, param_df = param_df
     )
     # format should be df as input
     # update output df
@@ -146,5 +149,5 @@ output_df <- run_time(
     "R" = rep(0, model_params$no_days),
     "D" = rep(0, model_params$no_days)
   ),
-  npop = model_params$pop, days = model_params$no_days
+  model_params
 )
