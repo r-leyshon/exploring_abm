@@ -42,7 +42,7 @@ create_agents <- function(npop, num_e, num_i, agents = data.frame()) {
   return(agents)
 }
 
-agents <- create_agents(15, num_e = 5, num_i = 5)
+agents <- create_agents(pop, num_e = 5, num_i = 5)
 
 # collecting output -------------------------------------------------------
 # will collect the table summaries
@@ -72,7 +72,8 @@ expose_agents <- function(agent_df, encounters, individual) {
 
 # -------------------------------------------------------------------------
 # run the encounters
-run_encounters <- function(agent_df, npop) {
+run_encounters <- function(agent_df) {
+  npop <- nrow(agent_df)
   for (i in 1:npop) {
     # determine agents propensity to mix
     mix_likelihood <- agent_df$mixing[i]
@@ -87,7 +88,7 @@ run_encounters <- function(agent_df, npop) {
       replace = TRUE,
       prob = agent_df$mixing
     )
-    # # alter conditions on encounters
+    # alter conditions on encounters
     agent_df$state[i] <- expose_agents(
       agent_df, agents_encountered,
       individual = i
@@ -100,7 +101,7 @@ run_encounters <- function(agent_df, npop) {
   recovering <- (1:npop)[agent_df$days_exposed > 14]
   agent_df$state[recovering] <- "R"
   # change exposed people to infected
-  infecting <- (1:npop)[agent_df$state == "E" & agent_df$state > 3]
+  infecting <- (1:npop)[agent_df$state == "E" & agent_df$days_exposed > 3]
   # give a random chance of becoming infected
   for (i in infecting) {
     infection_risk <- as.logical(round(runif(1, 0, 1), 0))
@@ -117,7 +118,7 @@ run_encounters <- function(agent_df, npop) {
 run_time <- function(agent_table, out_df, npop, days) {
   message(sprintf("moving %s people through %s days", npop, days))
   for (k in 1:days) {
-    agent_table <- run_encounters(agent_df = agent_table, npop = npop)
+    agent_table <- run_encounters(agent_df = agent_table)
     # format should be df as input
     # update output df
     out_df$E[k] <- length(agent_table$state[agent_table$state == "E"])
