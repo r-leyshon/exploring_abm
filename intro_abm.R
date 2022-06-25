@@ -7,13 +7,15 @@ https://www.youtube.com/watch?v=Gpr7gEdiN0w"
 
 
 # deps --------------------------------------------------------------------
+library(here)
+
 model_params <- data.frame(
-  pop = 100,
-  no_days = 25,
+  pop = 1000,
+  no_days = 15,
   maxmix = 5,
-  s2e = 0.25,
-  e2i = 0.5,
-  i2d = 0.01
+  s2e = 0.2,
+  e2i = 0.9,
+  i2d = 0.1
 )
 
 # -------------------------------------------------------------------------
@@ -181,6 +183,7 @@ output_df <- run_time(
 
 # visualise ---------------------------------------------------------------
 
+png(here("www/output_plot.png"), width = 1920, height = 1080)
 plot(
   1:model_params$no_days, output_df$S,
   main = "Agent-Based Model of Disease Exposure",
@@ -192,9 +195,30 @@ mysubtitle <- sprintf(
   "%s agents over %s days",
   model_params$pop, model_params$no_days
 )
-mtext(side = 3, line = 0.6, at = -0.09, adj = -3.8, cex = 0.9, mysubtitle)
-
+mtext(side = 3, line = 0.6, at = -0.09, adj = -7.3, cex = 0.9, mysubtitle)
+lab_nudge <- 0.2
+text(
+  x = model_params$no_days + lab_nudge, y = tail(output_df$S, 1),
+  label = "S", col = "purple"
+)
 lines(1:model_params$no_days, output_df$E, col = "orange")
+text(
+  x = model_params$no_days + lab_nudge, y = tail(output_df$E, 1),
+  label = "E", col = "orange"
+)
 lines(1:model_params$no_days, output_df$I, col = "red")
+text(
+  x = model_params$no_days + lab_nudge, y = tail(output_df$I, 1),
+  label = "I", col = "red"
+)
 lines(1:model_params$no_days, output_df$R, col = "seagreen")
+text(
+  x = model_params$no_days + lab_nudge, y = tail(output_df$R, 1),
+  label = "R", col = "seagreen"
+)
 lines(1:model_params$no_days, output_df$D, col = "black")
+text(
+  x = model_params$no_days + lab_nudge, y = tail(output_df$D, 1),
+  label = "D", col = "black"
+)
+dev.off()
