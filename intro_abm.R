@@ -182,6 +182,7 @@ output_df <- run_time(
 )
 
 # visualise ---------------------------------------------------------------
+linwt <- 2.5
 
 png(here("www/output_plot.png"), width = 1920, height = 1080)
 plot(
@@ -189,7 +190,8 @@ plot(
   main = "Agent-Based Model of Disease Exposure",
   xlab = "Model duration (days)", ylab = "Number of agents",
   type = "l", col = "purple",
-  ylim = c(0, model_params$pop)
+  ylim = c(0, model_params$pop),
+  lwd = linwt
 )
 mysubtitle <- sprintf(
   "%s agents over %s days",
@@ -201,22 +203,22 @@ text(
   x = model_params$no_days + lab_nudge, y = tail(output_df$S, 1),
   label = "S", col = "purple"
 )
-lines(1:model_params$no_days, output_df$E, col = "orange")
+lines(1:model_params$no_days, output_df$E, col = "orange", lwd = linwt)
 text(
   x = model_params$no_days + lab_nudge, y = tail(output_df$E, 1),
   label = "E", col = "orange"
 )
-lines(1:model_params$no_days, output_df$I, col = "red")
+lines(1:model_params$no_days, output_df$I, col = "red", lwd = linwt)
 text(
   x = model_params$no_days + lab_nudge, y = tail(output_df$I, 1),
   label = "I", col = "red"
 )
-lines(1:model_params$no_days, output_df$R, col = "seagreen")
+lines(1:model_params$no_days, output_df$R, col = "seagreen", lwd = linwt)
 text(
   x = model_params$no_days + lab_nudge, y = tail(output_df$R, 1),
   label = "R", col = "seagreen"
 )
-lines(1:model_params$no_days, output_df$D, col = "black")
+lines(1:model_params$no_days, output_df$D, col = "black", lwd = linwt)
 text(
   x = model_params$no_days + lab_nudge, y = tail(output_df$D, 1),
   label = "D", col = "black"
