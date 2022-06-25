@@ -1,5 +1,5 @@
-"Finished part 10, part 11 below:
-https://www.youtube.com/watch?v=pbAlp54V-5A"
+"Finished part 11, part 12 below:
+https://www.youtube.com/watch?v=Gpr7gEdiN0w"
 # agent_no is a label
 # state = S (susceptible) or E (exposed)
 # I = infected, R = recovered, D = dead
@@ -8,7 +8,7 @@ https://www.youtube.com/watch?v=pbAlp54V-5A"
 
 # deps --------------------------------------------------------------------
 model_params <- data.frame(
-  pop = 10,
+  pop = 100,
   no_days = 100,
   maxmix = 10,
   s2e = 0.25,
@@ -75,8 +75,15 @@ expose_agents <- function(agent_df, encounters, individual, param_df) {
 # -------------------------------------------------------------------------
 # run the encounters
 run_encounters <- function(agent_df, param_df) {
+  # grab the susceptible agents' index
   npop <- nrow(agent_df)
-  for (i in 1:npop) {
+  sus_agents <- (1:npop)[agent_df$state == "S"]
+  # when mixing, mix only with susceptible or exposed, logic is that infected
+  # or recvering should be isolating, dead people shouldn't be mixed with.
+  sus_exposed_agents <- (1:npop)[agent_df$state == "S" | agent_df$state == "E"]
+  for (i in sus_agents) {
+
+
     # determine agents propensity to mix
     mix_likelihood <- agent_df$mixing[i]
     # find the number of agents encountered
@@ -88,10 +95,11 @@ run_encounters <- function(agent_df, param_df) {
     )
     # retrieve the agents encountered
     agents_encountered <- sample(
-      1:npop,
+      # updating to limit the population members
+      sus_exposed_agents,
       size = num_encountered,
       replace = TRUE,
-      prob = agent_df$mixing
+      prob = agent_df$mixing[sus_exposed_agents]
     )
     # alter conditions on encounters
     agent_df$state[i] <- expose_agents(
