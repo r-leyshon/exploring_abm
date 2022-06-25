@@ -9,11 +9,11 @@ https://www.youtube.com/watch?v=Gpr7gEdiN0w"
 # deps --------------------------------------------------------------------
 model_params <- data.frame(
   pop = 100,
-  no_days = 100,
-  maxmix = 10,
+  no_days = 25,
+  maxmix = 5,
   s2e = 0.25,
-  e2i = 0.1,
-  i2d = 0.05
+  e2i = 0.5,
+  i2d = 0.01
 )
 
 # -------------------------------------------------------------------------
@@ -178,3 +178,23 @@ output_df <- run_time(
   ),
   model_params
 )
+
+# visualise ---------------------------------------------------------------
+
+plot(
+  1:model_params$no_days, output_df$S,
+  main = "Agent-Based Model of Disease Exposure",
+  xlab = "Model duration (days)", ylab = "Number of agents",
+  type = "l", col = "purple",
+  ylim = c(0, model_params$pop)
+)
+mysubtitle <- sprintf(
+  "%s agents over %s days",
+  model_params$pop, model_params$no_days
+)
+mtext(side = 3, line = 0.6, at = -0.09, adj = -3.8, cex = 0.9, mysubtitle)
+
+lines(1:model_params$no_days, output_df$E, col = "orange")
+lines(1:model_params$no_days, output_df$I, col = "red")
+lines(1:model_params$no_days, output_df$R, col = "seagreen")
+lines(1:model_params$no_days, output_df$D, col = "black")
