@@ -1,5 +1,7 @@
 # Exploring Agent-Based Models (ABM)
 
+![Latest modelled output visualisation](www/output_plot.png)
+
 ## Resource list:
 
 <details>
@@ -13,4 +15,3 @@
   <summary>Python</summary>
   <p>Pending</p>
 </details>
-
